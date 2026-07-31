@@ -12,7 +12,7 @@ WRTNet combines a Transformer encoder, parallel CNN decoders, a differentiable w
 
 * `WRTNet.py`: WRTNet architecture with wavelet-based multiscale refinement.
 * `networks_transformer.py`: conventional Transformer baseline with plain multicomponent fusion and no wavelet refinement.
-* `train_wrtnet.py`: data preparation, forward modeling, model training, evaluation, and result saving.
+* `main.py`: data preparation, forward modeling, model training, evaluation, and result saving.
 * `data/model/`: input elastic models used by the training script.
 * `datasets/`: dataset-related files and utilities.
 * `LICENSE`: repository license.
