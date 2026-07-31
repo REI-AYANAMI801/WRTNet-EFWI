@@ -13,8 +13,8 @@ WRTNet combines a Transformer encoder, parallel CNN decoders, a differentiable w
 * `WRTNet.py`: WRTNet architecture with wavelet-based multiscale refinement.
 * `networks_transformer.py`: conventional Transformer baseline with plain multicomponent fusion and no wavelet refinement.
 * `main.py`: data preparation, forward modeling, model training, evaluation, and result saving.
-* `data/model/`: input elastic models used by the training script.
-* `datasets/`: dataset-related files and utilities.
+* `data/model/`: SEAM Arid elastic model files used by the training script.
+* `requirements.txt`: Python dependencies required to run the project.
 * `LICENSE`: repository license.
 
 ## Requirements
@@ -30,15 +30,17 @@ The implementation requires Python and the following main packages:
 * ptwt
 * TensorBoard
 
-Install the dependencies with:
+Install the required packages with:
 
 ```bash
 pip install -r requirements.txt
 ```
 
+For GPU execution, ensure that the installed PyTorch version is compatible with the local CUDA environment.
+
 ## Data Preparation
 
-Place the SEAM Arid model files in `data/model/`:
+The SEAM Arid shallow elastic model files are provided in:
 
 ```text
 data/model/
@@ -47,53 +49,83 @@ data/model/
 └── rho_arid_shallow.npy
 ```
 
-The file paths, acquisition geometry, sampling parameters, and training settings can be changed in `train_wrtnet.py`.
+The model files contain P-wave velocity, S-wave velocity, and density, respectively. The density model is converted from `g/cm³` to `kg/m³` within the training script.
+
+The data paths, acquisition geometry, temporal and spatial sampling parameters, and training settings can be modified in `main.py`.
 
 ## Model Selection
 
-Only one model import should be enabled in the training script.
+Only one model import should be enabled in `main.py`.
 
-For WRTNet:
+To run WRTNet:
 
 ```python
 from WRTNet import Physics_deepwave, Transfomerdecoder
 ```
 
-For the conventional Transformer baseline:
+To run the conventional Transformer baseline:
 
 ```python
 from networks_transformer import Physics_deepwave, Transfomerdecoder
 ```
 
-When using the conventional Transformer baseline, remove the following WRTNet-specific arguments from the model initialization:
+When using the conventional Transformer baseline, comment out the WRTNet import and remove the following WRTNet-specific arguments from the model initialization:
 
 ```python
-use_wave_refine=True
-wave_base_ch=24
+use_wave_refine=True,
+wave_base_ch=24,
 ```
+
+The conventional Transformer baseline uses plain multicomponent fusion and does not include the wavelet refinement module.
 
 ## Training
 
 Run the inversion experiment with:
 
 ```bash
-python train_wrtnet.py
+python main.py
 ```
 
-The current configuration uses:
+The current training configuration uses:
 
-* `transddepth = 12`
-* `embed_dim = 256`
-* `num_heads = 8`
-* `n_blocks_decoder = 4`
-* `learning_rate = 1e-4`
-* `iterations = 2000`
+* Transformer depth: `transddepth = 12`
+* Embedding dimension: `embed_dim = 256`
+* Number of attention heads: `num_heads = 8`
+* Number of CNN decoder blocks: `n_blocks_decoder = 4`
+* Learning rate: `1e-4`
+* Number of iterations: `2000`
 
-Checkpoints, estimated elastic models, TensorBoard logs, and figures are saved automatically under the `result/` directory.
+The default configuration performs inversion on the SEAM Arid shallow model using multicomponent elastic seismic data generated through differentiable forward modeling.
+
+## Outputs
+
+The following outputs are saved automatically under the `result/` directory:
+
+* Estimated `Vp`, `Vs`, and density models
+* Training and evaluation losses
+* Model checkpoints
+* TensorBoard logs
+* Initial and inverted model figures
+* Held-out receiver loss curves, when receiver masking is enabled
+
+TensorBoard logs can be viewed with:
+
+```bash
+tensorboard --logdir result
+```
 
 ## Code Availability
 
-The repository provides the WRTNet implementation, the conventional Transformer baseline, differentiable elastic-wave forward modeling, and the main training workflow for academic research and reproducibility.
+This repository provides:
+
+* The complete WRTNet architecture
+* A conventional Transformer baseline
+* Differentiable elastic-wave forward modeling
+* Multiscale wavelet-domain data misfit
+* Joint `Vp`, `Vs`, and density inversion
+* Training, evaluation, checkpointing, and visualization workflows
+
+The source code is provided for academic research and reproducibility.
 
 ## Citation
 
@@ -101,8 +133,8 @@ If you use this repository, please cite:
 
 > Yan, B., Pan, R., and Wang, Y. “A Wavelet-Refined Transformer Network for Physics-Informed Unsupervised Elastic Full-Waveform Inversion.”
 
-The complete bibliographic information will be added after publication.
+The complete bibliographic information and DOI will be added after publication.
 
 ## License
 
-This project is released under the license provided in the `LICENSE` file.
+This project is released under the MIT License. See the `LICENSE` file for details.
